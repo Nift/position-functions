@@ -69,18 +69,15 @@ export function getPrependPositionMinCollision(
   return calculateNewPositionMinCollision(prevPosition, nextPosition);
 }
 
-export interface IPositionEntry {
-  position: number;
-}
-
-export function reformatPositions<T extends IPositionEntry>(
+export function reformatPositions<T>(
   positions: T[],
+  comparisonFunction: (a: T, b: T) => number,
+  setterFunction: (value: T, newPosition: number) => T,
   positionConstant: number = positionFactor
 ): T[] {
-  const positionsSorted = positions.sort(compareFunction);
+  const positionsSorted = positions.sort(comparisonFunction);
   return positionsSorted.map((val, index) => {
-    val.position = positionConstant * (index + 1);
-    return val;
+    return setterFunction(val, positionConstant * (index + 1));
   });
 }
 
@@ -94,17 +91,4 @@ export function triggerReformation(
     position > Number.MAX_VALUE - 2 * positionConstant ||
     position - previousPosition < 1 / positionConstant
   );
-}
-
-export function compareFunction<T extends IPositionEntry>(a: T, b: T) {
-  return a.position - b.position;
-}
-
-export function sort<T extends IPositionEntry>(list: T[]): T[];
-export function sort<T extends IPositionEntry>(
-  list: T[],
-  comparisonFunction?: (a: T, b: T) => number
-): T[] {
-  const func = comparisonFunction ? comparisonFunction : compareFunction;
-  return list.sort(func);
 }
