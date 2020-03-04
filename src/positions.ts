@@ -1,17 +1,23 @@
 const positionFactor = 50 * 650000;
 
-export function calculateNewPosition(
-  previousPosition: number,
-  nextPosition: number
-): number {
+export function calculateNewPosition({
+  previousPosition,
+  nextPosition
+}: {
+  previousPosition: number;
+  nextPosition: number;
+}): number {
   return (previousPosition + nextPosition) / 2;
 }
 
-export function calculateNewPositionMinCollision(
-  previousPosition: number,
-  nextPosition: number
-): number {
-  const newPos = calculateNewPosition(previousPosition, nextPosition);
+export function calculateNewPositionMinCollision({
+  previousPosition,
+  nextPosition
+}: {
+  previousPosition: number;
+  nextPosition: number;
+}): number {
+  const newPos = calculateNewPosition({ previousPosition, nextPosition });
   const theRandomNumber = getRandomArbitraryNumber(
     0,
     (newPos - previousPosition) / 2
@@ -41,51 +47,72 @@ export function getNextPosition({
   return previousPosition + positionConstant;
 }
 
-export function getNextPositionMinCollision(
-  previousPosition: number,
-  positionConstant: number = positionFactor
-): number {
-  return calculateNewPositionMinCollision(
+export function getNextPositionMinCollision({
+  previousPosition,
+  positionConstant = positionFactor
+}: {
+  previousPosition: number;
+  positionConstant?: number;
+}): number {
+  return calculateNewPositionMinCollision({
     previousPosition,
-    previousPosition + positionConstant * 2
-  );
+    nextPosition: previousPosition + positionConstant * 2
+  });
 }
 
-export function getPrependPosition(
-  nextPosition: number,
-  positionConstant: number = positionFactor
-): number {
+export function getPrependPosition({
+  nextPosition,
+  positionConstant = positionFactor
+}: {
+  nextPosition: number;
+  positionConstant?: number;
+}): number {
   let prevPosition = nextPosition - positionConstant;
   if (prevPosition < 0 || prevPosition > nextPosition) prevPosition = 0;
-  return calculateNewPosition(prevPosition, nextPosition);
+  return calculateNewPosition({ previousPosition: prevPosition, nextPosition });
 }
 
-export function getPrependPositionMinCollision(
-  nextPosition: number,
-  positionConstant: number = positionFactor
-): number {
+export function getPrependPositionMinCollision({
+  nextPosition,
+  positionConstant = positionFactor
+}: {
+  nextPosition: number;
+  positionConstant?: number;
+}): number {
   let prevPosition = nextPosition - positionConstant;
   if (prevPosition < 0) prevPosition = 0;
-  return calculateNewPositionMinCollision(prevPosition, nextPosition);
+  return calculateNewPositionMinCollision({
+    previousPosition: prevPosition,
+    nextPosition
+  });
 }
 
-export function reformatPositions<T>(
-  positions: T[],
-  comparisonFunction: (a: T, b: T) => number,
-  setterFunction: (value: T, newPosition: number) => T,
-  positionConstant: number = positionFactor
-): T[] {
+export function reformatPositions<T>({
+  positions,
+  comparisonFunction,
+  setterFunction,
+  positionConstant = positionFactor
+}: {
+  positions: T[];
+  comparisonFunction: (a: T, b: T) => number;
+  setterFunction: (value: T, newPosition: number) => T;
+  positionConstant?: number;
+}): T[] {
   const positionsSorted = positions.sort(comparisonFunction);
   return positionsSorted.map((val, index) => {
     return setterFunction(val, positionConstant * (index + 1));
   });
 }
 
-export function triggerReformation(
-  previousPosition: number,
-  position: number,
-  positionConstant: number = positionFactor
-): boolean {
+export function triggerReformation({
+  previousPosition,
+  position,
+  positionConstant = positionFactor
+}: {
+  previousPosition: number;
+  position: number;
+  positionConstant?: number;
+}): boolean {
   return (
     position < 1 / positionConstant ||
     position > Number.MAX_VALUE - 2 * positionConstant ||
